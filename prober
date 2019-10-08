@@ -7,13 +7,15 @@ use Net::SNMP;
 use Net::SNMP::Util;
 use Getopt::Long;
 
-
+use Data::Dumper;
 
 
 sub probe_device {
 	
 	my ($switch, $community, $version) = @_;
 
+	my %dataStore;
+	
 
 #	if ($version==1) {
 #		print "SNMPwalk only works with 2c or higher";
@@ -59,36 +61,47 @@ sub probe_device {
 	foreach my $index ( sort keys %{$result->{dot1dTpFdbEntryAddress}} ){
 #        printf " - $index - ";
 
+
 		if ($result->{dot1dTpFdbEntryStatus}{$index} != 4 ){
-			printf "%s %s ",
-				$result->{dot1dTpFdbEntryAddress}{$index},   # dot1dTpFdbAddress
-				$result->{dot1dTpFdbEntryPort}{$index};   # dot1dTpFdbPort
-			if ($result->{dot1dTpFdbEntryPort}{$index} > 0 ){
-				printf "( %s )", $result->{ifName}{$result->{dot1dTpFdbEntryPort}{$index}};
-			} else {
-				printf "( N/A )";
-			}
-			printf "%s ",
-				$result->{dot1dTpFdbEntryStatus}{$index};   # dot1dTpFdbStatus
-			if ( $result->{dot1dTpFdbEntryStatus}{$index} == 1 ){
-				printf "Other ";
-			}elsif ( $result->{dot1dTpFdbEntryStatus}{$index} == 2 ){
-				printf "Invalid ";
-			}elsif ( $result->{dot1dTpFdbEntryStatus}{$index} == 3 ){
-				printf "Learned ";
-			}elsif ( $result->{dot1dTpFdbEntryStatus}{$index} == 4 ){
-				printf "Self ";
-			}else {
-				printf "Mgnt ";
-		
-			}	
-			printf "\n";
+
+#		    printf "%s %s ",
+#				$result->{dot1dTpFdbEntryAddress}{$index},   # dot1dTpFdbAddress
+#				$result->{dot1dTpFdbEntryPort}{$index};   # dot1dTpFdbPort
+#			if ($result->{dot1dTpFdbEntryPort}{$index} > 0 ){
+#				printf "( %s )", $result->{ifName}{$result->{dot1dTpFdbEntryPort}{$index}};
+#			} else {
+#				printf "( N/A )";
+#			}
+#			printf "%s ",
+#				$result->{dot1dTpFdbEntryStatus}{$index};   # dot1dTpFdbStatus
+#			if ( $result->{dot1dTpFdbEntryStatus}{$index} == 1 ){
+#				printf "Other ";
+#			}elsif ( $result->{dot1dTpFdbEntryStatus}{$index} == 2 ){
+#				printf "Invalid ";
+#			}elsif ( $result->{dot1dTpFdbEntryStatus}{$index} == 3 ){
+#				printf "Learned ";
+#			}elsif ( $result->{dot1dTpFdbEntryStatus}{$index} == 4 ){
+#				printf "Self ";
+#			}else {
+#				printf "Mgnt ";
+#		
+#			}	
+#			printf "\n";
+
+			my %info = (
+			    switch => $switch,
+			    port =>  sprintf("%s ", $result->{dot1dTpFdbEntryPort}{$index}),
+			    portName => sprintf("%s ", $result->{ifName}{$result->{dot1dTpFdbEntryPort}{$index}}),
+			    status =>  sprintf("%s ",$result->{dot1dTpFdbEntryStatus}{$index}),
+			);
+			    
+			$dataStore{$result->{dot1dTpFdbEntryAddress}{$index}} = \%info;
 		}
 
 
     }
 
-	print "dot1qVlanStaticName\n";
+#	print "dot1qVlanStaticName\n";
 	my $k;
 	my @vlanArr=[];
 	foreach $k (sort keys %{$result->{dot1qVlanStaticName}}) {
@@ -100,7 +113,7 @@ sub probe_device {
 #	foreach my $i (1 .. $#vlanArr){
 #		print "$i -- $vlanArr[$i] \n";
 #	}
-	print "dot1qTpFdbStatus\n";
+#	print "dot1qTpFdbStatus\n";
 	
  foreach my $index ( sort keys %{$result->{dot1qTpFdbStatus}} ){
  ##        printf "$switch - $index - ";
@@ -115,36 +128,44 @@ sub probe_device {
 
 
 		if ( $result->{dot1qTpFdbStatus}{$index} <4 ){
-			 printf "%s %s ",
-				 $macAdd,   # dot1dTpFdbAddress
-				 $result->{dot1qTpFdbPort}{$index};   # dot1dTpFdbPort
-				 
-			if ($result->{dot1qTpFdbPort}{$index} > 0 ){
-				printf "( %s (vlan $vlan))", $result->{ifName}{$result->{dot1qTpFdbPort}{$index}};
-			} else {
-				printf "( N/A )";
-			}
-			printf "%s ",
-				$result->{dot1qTpFdbStatus}{$index};   # dot1dTpFdbStatus
-			if ( $result->{dot1qTpFdbStatus}{$index} == 1 ){
-				printf "Other ";
-			}
-			if ( $result->{dot1qTpFdbStatus}{$index} == 2 ){
-				printf "Invalid ";
-			}
-			if ( $result->{dot1qTpFdbStatus}{$index} == 3 ){
-				printf "Learned ";
-			}
-			if ( $result->{dot1qTpFdbStatus}{$index} == 4 ){
-				printf "Self ";
-			}
-			if ( $result->{dot1qTpFdbStatus}{$index} == 5 ){
-				printf "Mgnt ";
-			}
-			printf "\n";
+#		    printf "%s %s ",$macAdd, $result->{dot1qTpFdbPort}{$index};   # dot1dTpFdbPort
+#		    if ($result->{dot1qTpFdbPort}{$index} > 0 ){
+#			printf "( %s (vlan $vlan))", $result->{ifName}{$result->{dot1qTpFdbPort}{$index}};
+#		    } else {
+#			printf "( N/A )";
+#		    }
+#		    printf "%s ",
+#			$result->{dot1qTpFdbStatus}{$index};   # dot1dTpFdbStatus
+#		    if ( $result->{dot1qTpFdbStatus}{$index} == 1 ){
+#			printf "Other ";
+#		    }
+#		    if ( $result->{dot1qTpFdbStatus}{$index} == 2 ){
+#			printf "Invalid ";
+#		    }
+#		    if ( $result->{dot1qTpFdbStatus}{$index} == 3 ){
+#			printf "Learned ";
+#		    }
+#		    if ( $result->{dot1qTpFdbStatus}{$index} == 4 ){
+#			printf "Self ";
+#		    }
+#		    if ( $result->{dot1qTpFdbStatus}{$index} == 5 ){
+#			printf "Mgnt ";
+#		    }
+#		    printf "\n";
+		    my %info = (
+			switch => $switch,
+			port =>  sprintf("%s ",$result->{ifName}{$result->{dot1qTpFdbPort}{$index}}),
+			portName => sprintf("%s ", $result->{ifName}{$result->{dot1qTpFdbPort}{$index}}),
+			status =>  sprintf("%s ", $result->{dot1qTpFdbStatus}{$index}),
+			vlanName => $vlan,
+		    );
+		    
+		    $dataStore{$macAdd} = \%info;
+		    
 		}
-    }	
-	print "Done\n";
+ }	
+#	print "Done\n";
+	print Dumper(\%dataStore);
 	
 
 	return;
