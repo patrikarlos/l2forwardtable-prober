@@ -57,7 +57,7 @@ sub probe_device {
 	}
 	if ($result->{sysDescr}{0} =~ /\bCatalyst 4500\b/ ) {
 	    $SwitchType='C4500';
-	    print "Special cisco\n";
+#	    print "Special cisco\n";
 	}
 
 #Find the VLANs that are present on devicve.
@@ -237,10 +237,10 @@ sub probe_device {
 	return;
 }
 	
-my ($device,$com) = @ARGV;
+my ($device,$com,$version) = @ARGV;
 
 
 
-probe_device($device,$com,'2');
+probe_device($device,$com,$version);
 	
 	
